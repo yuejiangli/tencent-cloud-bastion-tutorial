@@ -1,0 +1,51 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+tfplan
+crash.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dev Container (keep configuration, ignore runtime files)
+# .devcontainer/  # 保留配置文件
+.devcontainer/.env
+.devcontainer/docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+backups/
+*.backup
+
+# Log files
+*.log
+
+# SSH keys (security)
+*.pem
+*.key
+id_rsa*
+
+# Temporary files
+tmp/
+temp/
+
+# Documentation generated files
+TERRAFORM.md
+
+# Docker
+.docker/
+
+# 腾讯云凭证文件（安全）
+.tencentcloud/
+credentials
