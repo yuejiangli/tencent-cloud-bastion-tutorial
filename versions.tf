@@ -11,14 +11,14 @@
 
 terraform {
   # Terraformバージョン制約：安定性と機能互換性確保
-  required_version = ">= 1.0"  # 1.0以降の安定版を要求
-  
+  required_version = ">= 1.0" # 1.0以降の安定版を要求
+
   # 必要プロバイダーとバージョン制約
   required_providers {
     # TencentCloudプロバイダー：中国テンセントクラウドサービス管理
     tencentcloud = {
-      source  = "tencentcloudstack/tencentcloud"  # 公式プロバイダー
-      version = "~> 1.81"  # 1.81.x系の最新版（後方互換性保証）
+      source  = "tencentcloudstack/tencentcloud" # 公式プロバイダー
+      version = "~> 1.81"                        # 1.81.x系の最新版（後方互換性保証）
     }
   }
 }
@@ -31,18 +31,15 @@ terraform {
 provider "tencentcloud" {
   # リージョン設定：東京リージョン（低レイテンシ、データ主権考慮）
   region = "ap-tokyo"
+
+  # 認証情報設定：環境変数から読み込み（セキュリティベストプラクティス）
+  # 以下の環境変数を設定してください：
+  # export TENCENTCLOUD_SECRET_ID="your-secret-id"
+  # export TENCENTCLOUD_SECRET_KEY="your-secret-key"
   
-  # 認証情報設定：セキュリティベストプラクティス
-  # 認証情報ファイルから自動読み込み（~/.tencentcloud/credentials）
-  # 
-  # 認証情報ファイル形式例：
-  # [default]
-  # secret_id = "your-secret-id"
-  # secret_key = "your-secret-key"
-  # 
   # セキュリティ考慮事項：
   # 1. 認証情報をコードに直接記述しない
-  # 2. 環境変数またはファイルベース認証を使用
+  # 2. 環境変数を使用してセキュアに管理
   # 3. 最小権限の原則に従ったIAMポリシー適用
   # 4. 定期的な認証情報ローテーション実施
 }

@@ -13,7 +13,7 @@
 resource "tencentcloud_security_group" "bastion" {
   name        = "${var.project_name}-bastion-sg-${var.environment}"
   description = "踏み台サーバー用セキュリティグループ - SSH管理アクセス制御"
-  
+
   tags = merge(var.common_tags, {
     ResourceName = "${var.project_name}-bastion-sg-${var.environment}"
     ResourceType = "bastion"
@@ -24,27 +24,27 @@ resource "tencentcloud_security_group" "bastion" {
 # セキュリティ原則：SSH（22番ポート）のみ許可、VPC内部通信も許可
 resource "tencentcloud_security_group_rule_set" "bastion_ssh_inbound" {
   security_group_id = tencentcloud_security_group.bastion.id
-  
+
   # インバウンド規則：SSH接続許可
   # 注意：本番環境では特定のIPアドレスに制限することを推奨
   ingress {
     action      = "ACCEPT"
-    cidr_block  = "0.0.0.0/0"  # 全てのIPから許可（本番では制限推奨）
+    cidr_block  = "0.0.0.0/0" # 全てのIPから許可（本番では制限推奨）
     protocol    = "TCP"
     port        = "22"
     description = "管理者SSH接続 - 踏み台サーバーへのアクセス"
   }
-  
+
   # VPC内部通信許可
   # 踏み台サーバーからプライベートサブネットへの全ての通信を許可
   ingress {
     action      = "ACCEPT"
-    cidr_block  = var.vpc_cidr  # VPC内部（10.0.0.0/16）
+    cidr_block  = var.vpc_cidr # VPC内部（10.0.0.0/16）
     protocol    = "ALL"
     port        = "ALL"
     description = "VPC内部通信 - プライベートサブネットとの通信"
   }
-  
+
   # アウトバウンド規則：全ての外部通信許可
   # 踏み台サーバーからプライベートサブネットやインターネットへの接続
   egress {
@@ -66,7 +66,7 @@ resource "tencentcloud_security_group_rule_set" "bastion_ssh_inbound" {
 resource "tencentcloud_security_group" "web" {
   name        = "${var.project_name}-web-sg-${var.environment}"
   description = "Webサーバー用セキュリティグループ - VPC内部アクセス制御"
-  
+
   tags = merge(var.common_tags, {
     ResourceName = "${var.project_name}-web-sg-${var.environment}"
     ResourceType = "web"
@@ -77,62 +77,62 @@ resource "tencentcloud_security_group" "web" {
 # セキュリティ原則：踏み台サーバーサブネットからのSSHアクセスとVPC内部通信のみ許可
 resource "tencentcloud_security_group_rule_set" "web_rules" {
   security_group_id = tencentcloud_security_group.web.id
-  
+
   # SSH管理アクセス（踏み台サーバーサブネット1からのみ）
   ingress {
     action      = "ACCEPT"
-    cidr_block  = tencentcloud_subnet.public[0].cidr_block  # 10.0.1.0/24
+    cidr_block  = tencentcloud_subnet.public[0].cidr_block # 10.0.1.0/24
     protocol    = "TCP"
     port        = "22"
     description = "踏み台サーバーサブネット1からのSSH管理アクセス"
   }
-  
+
   # SSH管理アクセス（踏み台サーバーサブネット2からのみ）
   ingress {
     action      = "ACCEPT"
-    cidr_block  = tencentcloud_subnet.public[1].cidr_block  # 10.0.2.0/24
+    cidr_block  = tencentcloud_subnet.public[1].cidr_block # 10.0.2.0/24
     protocol    = "TCP"
     port        = "22"
     description = "踏み台サーバーサブネット2からのSSH管理アクセス"
   }
-  
+
   # HTTP Webサービス（VPC内部からのみ）
   ingress {
     action      = "ACCEPT"
-    cidr_block  = var.vpc_cidr  # VPC内部からのみアクセス可能
+    cidr_block  = var.vpc_cidr # VPC内部からのみアクセス可能
     protocol    = "TCP"
     port        = "80"
     description = "VPC内部からのHTTPアクセス - Nginx Webサーバー"
   }
-  
+
   # HTTPS Webサービス（VPC内部からのみ）
   ingress {
     action      = "ACCEPT"
-    cidr_block  = var.vpc_cidr  # SSL/TLS暗号化通信
+    cidr_block  = var.vpc_cidr # SSL/TLS暗号化通信
     protocol    = "TCP"
     port        = "443"
     description = "VPC内部からのHTTPSアクセス - SSL/TLS暗号化"
   }
-  
+
   # Node.jsアプリケーションポート（VPC内部からのみ）
   ingress {
     action      = "ACCEPT"
-    cidr_block  = var.vpc_cidr  # Node.js開発サーバー用
+    cidr_block  = var.vpc_cidr # Node.js開発サーバー用
     protocol    = "TCP"
     port        = "8080"
     description = "VPC内部からのNode.jsアプリアクセス"
   }
-  
+
   # VPC内部通信許可
   # マイクロサービス間通信、データベース接続等
   ingress {
     action      = "ACCEPT"
-    cidr_block  = var.vpc_cidr  # VPC内部の全ての通信
+    cidr_block  = var.vpc_cidr # VPC内部の全ての通信
     protocol    = "ALL"
     port        = "ALL"
     description = "VPC内部通信 - マイクロサービス間通信"
   }
-  
+
   # アウトバウンド：全ての外部通信許可
   # NATゲートウェイ経由でのパッケージ更新、API呼び出し等
   egress {
@@ -153,7 +153,7 @@ resource "tencentcloud_security_group_rule_set" "web_rules" {
 resource "tencentcloud_security_group" "alb" {
   name        = "${var.project_name}-alb-sg-${var.environment}"
   description = "ALB用セキュリティグループ - パブリックWebアクセス制御"
-  
+
   tags = merge(var.common_tags, {
     ResourceName = "${var.project_name}-alb-sg-${var.environment}"
     ResourceType = "alb"
@@ -164,29 +164,29 @@ resource "tencentcloud_security_group" "alb" {
 # パブリックWebアクセスを提供する場合の設定
 resource "tencentcloud_security_group_rule_set" "alb_rules" {
   security_group_id = tencentcloud_security_group.alb.id
-  
+
   # パブリックHTTPアクセス
   ingress {
     action      = "ACCEPT"
-    cidr_block  = "0.0.0.0/0"  # インターネット全体からのアクセス
+    cidr_block  = "0.0.0.0/0" # インターネット全体からのアクセス
     protocol    = "TCP"
     port        = "80"
     description = "インターネットからのHTTPアクセス"
   }
-  
+
   # パブリックHTTPSアクセス
   ingress {
     action      = "ACCEPT"
-    cidr_block  = "0.0.0.0/0"  # SSL/TLS暗号化必須
+    cidr_block  = "0.0.0.0/0" # SSL/TLS暗号化必須
     protocol    = "TCP"
     port        = "443"
     description = "インターネットからのHTTPSアクセス"
   }
-  
+
   # ALBからVPC内部への転送
   egress {
     action      = "ACCEPT"
-    cidr_block  = var.vpc_cidr  # VPC内部のWebサーバーへ転送
+    cidr_block  = var.vpc_cidr # VPC内部のWebサーバーへ転送
     protocol    = "ALL"
     port        = "ALL"
     description = "ALBからVPC内部バックエンドサーバーへの転送"

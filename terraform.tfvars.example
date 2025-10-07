@@ -1,0 +1,31 @@
+# このファイルを terraform.tfvars にコピーして、必要に応じて設定を変更してください
+
+# 基本設定
+region      = "ap-tokyo"
+project_name = "bastion-web"
+environment = "prod"
+
+# ネットワーク設定
+vpc_cidr = "10.0.0.0/16"
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.10.0/24", "10.0.20.0/24"]
+availability_zones   = ["ap-tokyo-1", "ap-tokyo-2"]
+
+# インスタンス設定
+bastion_instance_type = "S5.SMALL2"   # 1コア2GB
+web_instance_type     = "S5.MEDIUM4"  # 2コア4GB
+instance_image_id     = "img-487zeit5" # Ubuntu 20.04
+key_pair_name         = "bastion_keypair"
+
+# セキュリティ設定（本番環境では SSH アクセス IP を制限することを推奨）
+allowed_ssh_cidrs = ["0.0.0.0/0"]  # パブリック IP に変更することを推奨
+allowed_web_ports = [80, 443, 8080]
+
+# タグ設定
+common_tags = {
+  project     = "bastion-web"
+  environment = "prod"
+  owner       = "devops-team"
+  cost-center = "engineering"
+  created-by  = "jaden-hands-on"
+}

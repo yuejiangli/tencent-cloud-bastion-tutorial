@@ -16,9 +16,7 @@ crash.log
 *~
 
 # Dev Container (keep configuration, ignore runtime files)
-# .devcontainer/  # 保留配置文件
-.devcontainer/.env
-.devcontainer/docker-compose.override.yml
+.devcontainer/
 
 # OS files
 .DS_Store

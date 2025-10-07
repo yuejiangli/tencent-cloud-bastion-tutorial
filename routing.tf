@@ -13,7 +13,7 @@
 resource "tencentcloud_route_table" "public" {
   vpc_id = tencentcloud_vpc.main.id
   name   = "${var.project_name}-public-rt-${var.environment}"
-  
+
   tags = merge(var.common_tags, {
     ResourceName = "${var.project_name}-public-rt-${var.environment}"
     ResourceType = "public"
@@ -24,9 +24,9 @@ resource "tencentcloud_route_table" "public" {
 # 全ての外部トラフィックを直接インターネットゲートウェイへ転送
 resource "tencentcloud_route_table_entry" "public_default" {
   route_table_id         = tencentcloud_route_table.public.id
-  destination_cidr_block = "0.0.0.0/0"  # 全ての外部アドレス
-  next_type              = "EIP"         # 弾性パブリックIP経由
-  next_hub               = "0"           # システムデフォルトゲートウェイ
+  destination_cidr_block = "0.0.0.0/0" # 全ての外部アドレス
+  next_type              = "EIP"       # 弾性パブリックIP経由
+  next_hub               = "0"         # システムデフォルトゲートウェイ
   description            = "パブリックサブネット用デフォルトルート - 直接インターネットアクセス"
 }
 
@@ -48,7 +48,7 @@ resource "tencentcloud_route_table" "private" {
   count  = length(var.availability_zones)
   vpc_id = tencentcloud_vpc.main.id
   name   = "${var.project_name}-private-rt-${count.index + 1}-${var.environment}"
-  
+
   tags = merge(var.common_tags, {
     ResourceName = "${var.project_name}-private-rt-${count.index + 1}-${var.environment}"
     ResourceType = "private"
@@ -61,8 +61,8 @@ resource "tencentcloud_route_table_entry" "private_default" {
   count                  = length(tencentcloud_route_table.private)
   route_table_id         = tencentcloud_route_table.private[count.index].id
   destination_cidr_block = "0.0.0.0/0"                      # 全ての外部アドレス
-  next_type              = "NAT"                             # NATゲートウェイ経由
-  next_hub               = tencentcloud_nat_gateway.main.id  # 共有NATゲートウェイ
+  next_type              = "NAT"                            # NATゲートウェイ経由
+  next_hub               = tencentcloud_nat_gateway.main.id # 共有NATゲートウェイ
   description            = "プライベートサブネット用デフォルトルート - NATゲートウェイ経由外部アクセス"
 }
 

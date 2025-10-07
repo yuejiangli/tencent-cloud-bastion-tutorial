@@ -23,7 +23,7 @@ output "vpc_info" {
 output "public_subnets" {
   description = "パブリックサブネット情報 - 踏み台サーバー配置先ネットワーク"
   value = {
-    for idx, subnet in tencentcloud_subnet.public : 
+    for idx, subnet in tencentcloud_subnet.public :
     "az_${idx + 1}" => {
       subnet_id   = subnet.id
       subnet_name = subnet.name
@@ -37,7 +37,7 @@ output "public_subnets" {
 output "private_subnets" {
   description = "プライベートサブネット情報 - Webサーバー配置先ネットワーク"
   value = {
-    for idx, subnet in tencentcloud_subnet.private : 
+    for idx, subnet in tencentcloud_subnet.private :
     "az_${idx + 1}" => {
       subnet_id   = subnet.id
       subnet_name = subnet.name
@@ -62,8 +62,8 @@ output "bastion_hosts" {
       instance_name = instance.instance_name
       public_ip     = instance.public_ip
       private_ip    = instance.private_ip
-      az           = instance.availability_zone
-      ssh_command  = "ssh -i ~/.ssh/${var.key_pair_name}.pem ubuntu@${instance.public_ip}"
+      az            = instance.availability_zone
+      ssh_command   = "ssh -i ~/.ssh/${var.key_pair_name}.pem ubuntu@${instance.public_ip}"
     }
   }
 }
@@ -72,10 +72,10 @@ output "bastion_hosts" {
 output "bastion_management" {
   description = "踏み台サーバー管理情報 - 運用監視とトラブルシューティング用"
   value = {
-    instance_type    = var.bastion_instance_type
-    security_groups  = [for sg in tencentcloud_security_group.bastion : sg.id]
-    key_pair_name    = var.key_pair_name
-    total_instances  = length(tencentcloud_instance.bastion)
+    instance_type   = var.bastion_instance_type
+    security_groups = [tencentcloud_security_group.bastion.id]
+    key_pair_name   = var.key_pair_name
+    total_instances = length(tencentcloud_instance.bastion)
   }
 }
 
@@ -93,9 +93,9 @@ output "web_servers" {
       instance_id   = instance.id
       instance_name = instance.instance_name
       private_ip    = instance.private_ip
-      az           = instance.availability_zone
-      ssh_command  = "ssh -A -J ubuntu@${tencentcloud_instance.bastion[0].public_ip} ubuntu@${instance.private_ip}"
-      http_url     = "http://${instance.private_ip}"
+      az            = instance.availability_zone
+      ssh_command   = "ssh -A -J ubuntu@${tencentcloud_instance.bastion[0].public_ip} ubuntu@${instance.private_ip}"
+      http_url      = "http://${instance.private_ip}"
     }
   }
 }
@@ -104,10 +104,10 @@ output "web_servers" {
 output "web_management" {
   description = "Webサーバー管理情報 - 運用監視とスケーリング用"
   value = {
-    instance_type    = var.web_instance_type
-    security_groups  = [for sg in tencentcloud_security_group.web : sg.id]
-    total_instances  = length(tencentcloud_instance.web)
-    load_balancer    = "未設定 - 必要に応じてCLB追加検討"
+    instance_type   = var.web_instance_type
+    security_groups = [tencentcloud_security_group.web.id]
+    total_instances = length(tencentcloud_instance.web)
+    load_balancer   = "未設定 - 必要に応じてCLB追加検討"
   }
 }
 
@@ -120,12 +120,12 @@ output "web_management" {
 output "nat_gateway" {
   description = "NATゲートウェイ情報 - プライベートサブネット外部接続制御"
   value = {
-    nat_id       = tencentcloud_nat_gateway.main.id
-    nat_name     = tencentcloud_nat_gateway.main.name
-    public_ip    = tencentcloud_eip.nat.public_ip
-    bandwidth    = tencentcloud_nat_gateway.main.bandwidth
+    nat_id         = tencentcloud_nat_gateway.main.id
+    nat_name       = tencentcloud_nat_gateway.main.name
+    public_ip      = tencentcloud_eip.nat.public_ip
+    bandwidth      = tencentcloud_nat_gateway.main.bandwidth
     max_concurrent = tencentcloud_nat_gateway.main.max_concurrent
-    vpc_id       = tencentcloud_nat_gateway.main.vpc_id
+    vpc_id         = tencentcloud_nat_gateway.main.vpc_id
   }
 }
 
@@ -133,7 +133,7 @@ output "nat_gateway" {
 output "routing_info" {
   description = "ルーティング情報 - ネットワーク経路とアクセス制御"
   value = {
-    public_route_table  = tencentcloud_route_table.public.id
+    public_route_table   = tencentcloud_route_table.public.id
     private_route_tables = [for rt in tencentcloud_route_table.private : rt.id]
     internet_access = {
       bastion_hosts = "直接インターネットアクセス（双方向）"
@@ -152,13 +152,13 @@ output "security_groups" {
   description = "セキュリティグループ情報 - ファイアウォールとアクセス制御"
   value = {
     bastion_sg = {
-      id   = tencentcloud_security_group.bastion.id
-      name = tencentcloud_security_group.bastion.name
+      id          = tencentcloud_security_group.bastion.id
+      name        = tencentcloud_security_group.bastion.name
       description = "踏み台サーバー用 - SSH管理アクセス制御"
     }
     web_sg = {
-      id   = tencentcloud_security_group.web.id
-      name = tencentcloud_security_group.web.name
+      id          = tencentcloud_security_group.web.id
+      name        = tencentcloud_security_group.web.name
       description = "Webサーバー用 - HTTP/HTTPS + 内部SSH制御"
     }
   }
@@ -170,7 +170,7 @@ output "ssh_key_info" {
   value = {
     key_pair_id   = tencentcloud_key_pair.main.id
     key_pair_name = tencentcloud_key_pair.main.key_name
-    fingerprint   = tencentcloud_key_pair.main.finger_print
+    public_key    = tencentcloud_key_pair.main.public_key
     usage_note    = "全インスタンスで共通使用 - 秘密鍵の安全な管理が必要"
   }
 }

@@ -81,8 +81,8 @@ cat > /var/www/html/index.html << 'EOF'
             <h3>Server Information</h3>
             <p><strong>Hostname:</strong> <span id="hostname">${hostname}</span></p>
             <p><strong>Status:</strong> <span class="status">✅ Online</span></p>
-            <p><strong>Server Time:</strong> <span id="datetime">${new Date().toLocaleString()}</span></p>
-            <p><strong>OS:</strong> <span id="os">${os.hostname()}</span></p>
+            <p><strong>Server Time:</strong> <span id="datetime">$${new Date().toLocaleString()}</span></p>
+            <p><strong>OS:</strong> <span id="os">$${os.hostname()}</span></p>
         </div>
         
         <div class="info">
